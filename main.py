@@ -8,7 +8,6 @@ rudi = RunningDinner()
 
 def main():
     # Main routine of program
-    print("Hello World!")
     # create the event
     # load the teams from a file
     # rudi.loadcsv("in.csv")
@@ -34,7 +33,7 @@ def main():
     # find optimal routes
     rudi.optimize()
     # save the routes to file
-    rudi.savecsv("out.csv")
+    # rudi.savecsv("out.csv")
 
 
 # If called directly: invoke main routine
