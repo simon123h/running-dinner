@@ -9,5 +9,5 @@ def adress2coords(adress):
 
 def spatial_distance(coords1, coords2):
     """ Calculates the spatial distance between too coordinate pairs """
-    # TODO: is this a sane implementation
+    # TODO: is this a sane implementation?
     return sqrt(pow(coords1[0]-coords2[0], 2) + pow(coords1[1]-coords2[1], 2))
