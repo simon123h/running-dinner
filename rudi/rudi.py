@@ -11,7 +11,7 @@ class RunningDinner:
         # list of participating teams
         self.teams = []
         # number of meetings
-        self.nmeetings = 3
+        self.nmeals = 3
         # number of teams per meeting
         self.nteams_per_meeting = 3
         self.strn = 99
@@ -45,59 +45,79 @@ class RunningDinner:
             result += team.routelength()
         return result
 
-    def optimize(self):
-        # Find optimal routes for teams
-        self.generateMeetings(maxDistance=25)
-        # self.generateMeetings(maxDistance=25)
-        # self.generateMeetings(maxDistance=25)
-        self.savecsv()
+    def organize(self):
+        # organize the hosts, meetings and routes for the teams
+        # with preferably minimal route lengths and no second encounters
+        # Step 1: generate meetings & hosts for meals
+        self.generateMeetings()
+        # Step 2: generate routes for teams between meetings
+        self.generateRoutes()
+        # Step 3: try to optimize routes
+        self.optimize()
 
-    def generateMeetings(self, maxDistance=100):
-        # random.shuffle(self.teams)
-        penalty_remeet = 100
-        penalty_overfill = 9999
-        penalty_rehost = 9999
-        for meal in range(self.nmeetings):
-            for _ in range(self.nteams_per_meeting):
+    def generateMeetings(self):
+        # generate meetings & hosts for each meal
+        for meal in range(self.nmeals):
+            # create meeting at every nth team
+            for team in self.teams:
+                if (team.id-1) % self.nteams_per_meeting == meal:
+                    # assign new meeting with team as host to team's route
+                    team.route[meal] = Meeting(meal, team)
+
+    def generateRoutes(self):
+        # generate routes for teams between meetings for each meal
+        for meal in range(self.nmeals):
+            # generate a list of all meetings for this meal
+            meetings = []
+            for team in self.teams:
+                if team.route[meal] is not None and team.route[meal] not in meetings:
+                    meetings.append(team.route[meal])
+            # repeat the following algorithm until all teams have a meeting for this meal
+            ndone = 0
+            nundecided = 0
+            while ndone < len(self.teams):
+                # reset counter
+                ndone = 0
+                # loop over teams, check out each team's options and handle accordingly
                 for team in self.teams:
-                    # if team already has a Meeting for this meal: skip
+                    nundecided += 1
+                    # if team already has a meet for this meal: count as assigned and skip
                     if team.route[meal] is not None:
+                        ndone += 1
                         continue
-                    # generate dictionary of possible meetings and distances
-                    meetings = {}
-                    for enemy in self.teams:
-                        if enemy is not team and enemy.route[meal] is not None:
-                            meeting = enemy.route[meal]
-                            penalty = 0
-                            # if the meeting would include teams that already met: penalize
-                            if any(t in meeting.teams for t in team.teamsMet):
-                                penalty += penalty_remeet
-                            # if the meeting is full: penalize
-                            if len(meeting.teams) >= self.nteams_per_meeting:
-                                penalty += penalty_overfill
-                            # else: add to list of potential meetings
-                            meetings[meeting] = spatial_distance(
-                                team.coords, meeting.host.coords) + penalty
-                    # add possibility of hosting a meeting
-                    ownmeeting = Meeting()
-                    ownmeeting.setHost(team)
-                    if not team.hasHosted and len(meetings) == 0:
-                        meetings[ownmeeting] = 0
-                    elif not team.hasHosted:
-                        meetings[ownmeeting] = 10
-                    elif meal > 0 and team.route[meal-1] is not None and team.route[meal-1].host is team:
-                        meetings[ownmeeting] = penalty_rehost
-                    # sort dictionary by distance
-                    meetings = sorted(meetings.items(), key=lambda kv: kv[1])
-                    # print(team, meetings)
-                    # if there is meetings near me, go to the closest one!
-                    if len(meetings) > 0 and meetings[0][1] < maxDistance:
-                        meeting = meetings[0][0]
-                        # assign team to meeting
-                        meeting.addTeam(team)
-                        # put meeting into team's route
-                        team.route[meal] = meeting
-                        # if the meeting is self hosted, adjust boolean
-                        if meeting.host is team:
-                            team.hasHosted = True
-                    # else: do nothing, maybe a suitable meeting is found later on!
+                    # generate list of possible options (meetings) for the team
+                    options = team.filterMeetings(meetings)
+                    # handle according to the number of options
+                    if len(options) == 0:
+                        # zero options: allow reencounter with another team
+                        options = team.filterMeetings(
+                            meetings, reencounters=True)
+                    if len(options) == 0:
+                        # still no options: make up an own meeting!
+                        team.attendMeeting(Meeting(meal, team))
+                    elif len(options) == 1:
+                        # single option: plug the meeting into team's route
+                        team.attendMeeting(options[0])
+                    else:
+                        # multiple options:
+                        # if not all teams are undecided yet, skip this one
+                        if nundecided < len(self.teams):
+                            continue
+                        # else, all teams are undecided --> search optimal option
+                        # sort the options by shortest distance to current position
+                        distances = {}
+                        for meeting in options:
+                            distances[meeting] = spatial_distance(
+                                team.coordsAt(meal-1), meeting.host.coords)
+                        options = [x[0] for x in sorted(
+                            distances.items(), key=lambda kv: kv[1])]
+                        # pick the option with minimal walking distance
+                        team.attendMeeting(options[0])
+                    # routes may have changed, reset undecided counter
+                    nundecided = 0
+
+    # try to find errors and perform sane optimizations on the routes
+    def optimize(self):
+        # TODO: check for meetings with len(meeting.teams) == 1
+        # TODO: check for optimization of routes by swapping teams
+        pass

@@ -12,28 +12,15 @@ def main():
     # load the teams from a file
     # rudi.loadcsv("in.csv")
     # create some teams
-    # rudi.addTeam(Team())
-    # rudi.teams[-1].coords = (0, 0)
-    # rudi.addTeam(Team())
-    # rudi.teams[-1].coords = (1, 0)
-    # rudi.addTeam(Team())
-    # rudi.teams[-1].coords = (0, 1)
-
-    # rudi.addTeam(Team())
-    # rudi.teams[-1].coords = (-1, 0)
-    # rudi.addTeam(Team())
-    # rudi.teams[-1].coords = (0, -1)
-    # rudi.addTeam(Team())
-    # rudi.teams[-1].coords = (1, 1)
-
-    for i in range(9):
-        rudi.addTeam(Team())
-        rudi.teams[-1].coords = (0, i)
+    for i in range((9*8)-6):
+        t = Team()
+        t.coords = (0, i)
+        rudi.addTeam(t)
 
     # find optimal routes
-    rudi.optimize()
+    rudi.organize()
     # save the routes to file
-    # rudi.savecsv("out.csv")
+    rudi.savecsv("out.csv")
 
 
 # If called directly: invoke main routine

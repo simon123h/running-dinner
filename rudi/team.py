@@ -20,8 +20,6 @@ class Team:
         # generate ID of the team by total team count
         self.id = Team.teamcount
         Team.teamcount += 1
-        # has the team yet been a host for a meeting?
-        self.hasHosted = False
         # list of teams that were already met
         self.teamsMet = []
 
@@ -34,12 +32,47 @@ class Team:
         # set the RuDi event in which the team participates
         self.rudi = rudi
         # create empty route
-        self.route = [None]*rudi.nmeetings
+        self.route = [None]*rudi.nmeals
 
-    def met(self, team):
+    def meet(self, team):
         # an enemy team was met: save to list of met teams
         if team not in self.teamsMet:
             self.teamsMet.append(team)
+        if self not in team.teamsMet:
+            team.teamsMet.append(self)
+
+    def attendMeeting(self, meeting):
+        # attend a meeting (as corresponding meal)
+        # add meeting to route
+        self.route[meeting.meal] = meeting
+        # add team to meeting
+        meeting.addTeam(self)
+
+    def filterMeetings(self, meetings, reencounters=False, overcrowding=0, debug=False):
+        # from a list of meetings, return the ones that match the criteria
+        options = []
+        for meeting in meetings:
+            # is the meeting overcrowded? --> skip
+            if len(meeting.teams) >= self.rudi.nteams_per_meeting + overcrowding:
+                continue
+            # have some teams met already? --> skip
+            if any(t in meeting.teams for t in self.teamsMet) and not reencounters:
+                continue
+            # else: add the meeting to list of options
+            options.append(meeting)
+        # print debugging info
+        if debug:
+            print(self, "Options:\t", ", ".join(
+                [str(o) for o in options]))
+        return options
+
+    def coordsAt(self, meal=-1):
+        # returns the current position of the team for given meal
+        if meal < 0:
+            return self.coords
+        # elif self.route[meal] is None:
+        else:
+            return self.route[meal].host.coords
 
     def routelength(self):
         # calculate total route length
@@ -60,22 +93,21 @@ class Team:
 class Meeting:
     """ Object representation of a Meeting: encounter of Teams """
 
-    def __init__(self):
+    def __init__(self, meal, host=None):
         self.teams = []
+        self.meal = meal
         self.host = None
+        if host is not None:
+            self.addTeam(host)
+            self.setHost(host)
 
     def addTeam(self, team):
         # save enemy teams to teamsMet list
         for enemy in self.teams:
-            team.met(enemy)
-            enemy.met(team)
+            team.meet(enemy)
         # try to add team to list of teams if possible
         if team not in self.teams:
             self.teams.append(team)
-            # return True if successful
-            return True
-        # return False if not successful
-        return False
 
     def setHost(self, team):
         self.host = team
