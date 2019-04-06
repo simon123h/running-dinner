@@ -1,7 +1,9 @@
 from __future__ import print_function
 from geo import spatial_distance
+from tsp import tsp
 from team import Meeting
 import random
+import numpy as np
 
 
 class RunningDinner:
@@ -54,6 +56,16 @@ class RunningDinner:
         self.generateRoutes()
         # Step 3: try to optimize routes
         self.optimize()
+
+    def generate_team_ids(self):
+        # re-generate team ID so that they reflect spatial vicinity
+        # using a traveling salesman algorithm
+        N = len(self.teams)
+        matrix = np.zeros((N, N))
+        for i in range(N):
+            for j in range(N):
+                matrix[i, j] = spatial_distance(
+                    self.teams[i].coords, self.teams[j].coords)
 
     def generateMeetings(self):
         # generate meetings & hosts for each meal
