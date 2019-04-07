@@ -73,12 +73,16 @@ class RunningDinner:
         # with preferably minimal route lengths and no second encounters
 
         # Step 0: re-generate team ID so that they reflect spatial vicinity
+        print("Find single route through graph")
         self.generateTeamIDs(shuffle=True)
         # Step 1: generate meetings & hosts for meals
+        print("Generate Meetings")
         self.generateMeetings()
         # Step 2: generate routes for teams between meetings
+        print("Generate Routes")
         self.generateRoutes()
         # Step 3: try to optimize routes
+        print("Optimize solution")
         self.optimize()
 
     def generateTeamIDs(self, shuffle=False):
@@ -180,7 +184,7 @@ class RunningDinner:
                     meetings.append(team.route[meal])
             for meeting in meetings:
                 if len(meeting.teams) < 2:
-                    print("Warning: meeting at ", meeting.host, "has only",
+                    print("Warning: meeting at", meeting.host, "has only",
                           len(meeting.teams), "members")
                     # TODO: try to swap teams to fix this
 
@@ -195,5 +199,7 @@ class RunningDinner:
         data = []
         for team in self.teams:
             data.append([team.coordsAt(meal) for meal in range(self.nmeals)])
-            plt.plot(data[-1], linestyle="--", marker="o")
+            xs = [team.coordsAt(meal)[0] for meal in range(self.nmeals)]
+            ys = [team.coordsAt(meal)[1] for meal in range(self.nmeals)]
+            plt.plot(xs, ys, linestyle="-", marker="o")
         plt.savefig("out.png")

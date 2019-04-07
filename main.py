@@ -1,4 +1,6 @@
 from __future__ import print_function
+import matplotlib
+matplotlib.use("Agg")
 from rudi import RunningDinner, Team
 from numpy.random import normal
 # rudi = None
@@ -11,7 +13,7 @@ def main():
     # load the teams from a file
     # rudi.loadcsv("in.csv")
     # create some teams
-    N = 70
+    N = 3*333
     for _ in range(N):
         t = Team()
         t.coords = (normal(), normal())
@@ -22,7 +24,7 @@ def main():
     # save the routes to file
     rudi.savecsv("out.csv")
     print("Routelength:", rudi.routeslength())
-
+    rudi.plot()
 
 # If called directly: invoke main routine
 if __name__ == "__main__":
