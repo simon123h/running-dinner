@@ -13,7 +13,7 @@ def main():
     # load the teams from a file
     # rudi.loadcsv("in.csv")
     # create some teams
-    N = 3*333
+    N = 70
     for _ in range(N):
         t = Team()
         t.coords = (normal(), normal())

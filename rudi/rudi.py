@@ -107,6 +107,11 @@ class RunningDinner:
         sys.stdout = open('/dev/null', 'w')  # no stdout for the following call
         solution = tsp.get_approx_solution(solver)
         sys.stdout = save_stdout
+        xs = [self.teams[s].coords[0] for s in solution]
+        ys = [self.teams[s].coords[1] for s in solution]
+        plt.plot(xs, ys, linestyle="-", marker="o")
+        plt.savefig("out/tsp.png")
+        plt.cla()
         # set new team IDs according to solution
         for t in range(len(self.teams)):
             self.teams[t].id = solution[t]
