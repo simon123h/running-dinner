@@ -3,6 +3,7 @@ from .geo import spatial_distance
 from .team import Meeting
 import random
 import sys
+import math
 try:
     import tspy
 except ImportError:
@@ -61,11 +62,19 @@ class RunningDinner:
                     print(msg, file=f)
 
     def routeslength(self):
-        # total length of routes to be walked (including constraint penalties)
+        # total length of routes to be walked
         result = 0
         for team in self.teams:
             result += team.routelength()
         return result
+
+    def rms_routes(self):
+        # root mean square of routes to be walked
+        result = 0
+        for team in self.teams:
+            trl = team.routelength()
+            result += trl*trl
+        return math.sqrt(result / len(self.teams))
 
     def organize(self):
         # organize the hosts, meetings and routes for the teams
@@ -198,18 +207,19 @@ class RunningDinner:
         # TODO: check for reencounters of teams
         # TODO: check for optimization of routes by swapping teams
 
-        pass
-
-    def plot(self, meals=None):
-        N = len(self.teams)
+    def plot(self, meals=None, teams=None):
+        if teams is None:
+            teams = self.teams
         if meals is None:
             meals = range(-1, self.nmeals)
         for team in self.teams:
             xs = [team.coordsAt(meal)[0] for meal in meals]
             ys = [team.coordsAt(meal)[1] for meal in meals]
-            # if any([m is not None and m.host is team for m in team.route[:1]]):
-            #     plt.plot([team.coords[0]], [team.coords[1]], markersize=4, marker="o")
-            plt.plot(xs, ys, linestyle="-", marker="o")
+            plt.plot(xs, ys, marker="o", color="grey", linestyle="")
+        for team in teams:
+            xs = [team.coordsAt(meal)[0] for meal in meals]
+            ys = [team.coordsAt(meal)[1] for meal in meals]
+            plt.plot(xs, ys, linestyle="-")
         plt.savefig("out/routes{:05d}.png".format(self.plotID))
         self.plotID += 1
         plt.cla()
