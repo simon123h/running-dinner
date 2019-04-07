@@ -207,9 +207,9 @@ class RunningDinner:
         for team in self.teams:
             xs = [team.coordsAt(meal)[0] for meal in meals]
             ys = [team.coordsAt(meal)[1] for meal in meals]
-            if any([m is not None and m.host is team for m in team.route[:1]]):
-                plt.plot([team.coords[0]], [team.coords[1]], markersize=4, marker="o")
-            plt.plot(xs, ys, linestyle="-", marker="x")
+            # if any([m is not None and m.host is team for m in team.route[:1]]):
+            #     plt.plot([team.coords[0]], [team.coords[1]], markersize=4, marker="o")
+            plt.plot(xs, ys, linestyle="-", marker="o")
         plt.savefig("out/routes{:05d}.png".format(self.plotID))
         self.plotID += 1
         plt.cla()
