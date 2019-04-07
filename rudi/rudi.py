@@ -15,6 +15,11 @@ try:
 except ImportError:
     raise ImportError(
         'Module \'numpy\' required.\nPlease install it via \'pip3 install --user numpy\'')
+try:
+    import matplotlib.pyplot as plt
+except ImportError:
+    raise ImportError(
+        'Module \'matplotlib\' required.\nPlease install it via \'pip3 install --user matplotlib\'')
 
 
 class RunningDinner:
@@ -51,7 +56,10 @@ class RunningDinner:
                 msg += "Route: "
                 msg += ", ".join([(str(m.host.id) if m is not None else "N")
                                   for m in team.route])
-                print(msg)
+                if csvfile == "":
+                    print(msg)
+                else:
+                    print(msg, file=f)
 
     def routeslength(self):
         # total length of routes to be walked (including constraint penalties)
@@ -176,6 +184,12 @@ class RunningDinner:
                           len(meeting.teams), "members")
                     # TODO: try to swap teams to fix this
 
+        # TODO: check for reencounters of teams
         # TODO: check for optimization of routes by swapping teams
 
         pass
+
+    def plot(self):
+        N = len(self.teams)
+        # data = np.zeros()
+        # TODO: implement

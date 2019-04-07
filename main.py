@@ -1,7 +1,6 @@
 from __future__ import print_function
 from rudi import RunningDinner, Team
-
-
+from numpy.random import normal
 # rudi = None
 rudi = RunningDinner()
 
@@ -12,15 +11,17 @@ def main():
     # load the teams from a file
     # rudi.loadcsv("in.csv")
     # create some teams
-    for i in range((9*8)-6):
+    N = 70
+    for _ in range(N):
         t = Team()
-        t.coords = (0, i)
+        t.coords = (normal(), normal())
         rudi.addTeam(t)
 
     # find optimal routes
     rudi.organize()
     # save the routes to file
     rudi.savecsv("out.csv")
+    print("Routelength:", rudi.routeslength())
 
 
 # If called directly: invoke main routine
