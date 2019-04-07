@@ -1,9 +1,20 @@
 from __future__ import print_function
-from geo import spatial_distance
-from tsp import tsp
-from team import Meeting
+from .geo import spatial_distance
+from .team import Meeting
 import random
-import numpy as np
+import sys
+try:
+    import tspy
+except ImportError:
+    raise ImportError(
+        'Module \'tspy\' required.\nPlease install it via \'pip3 install --user tspy\'')
+except SyntaxError:
+    raise Exception("Module \'tspy\' requires Python 3")
+try:
+    import numpy as np
+except ImportError:
+    raise ImportError(
+        'Module \'numpy\' required.\nPlease install it via \'pip3 install --user numpy\'')
 
 
 class RunningDinner:
@@ -17,6 +28,8 @@ class RunningDinner:
         # number of teams per meeting
         self.nteams_per_meeting = 3
         self.strn = 99
+        if sys.version_info[0] < 3:
+            raise Exception("RunningDinner requires Python 3")
 
     def addTeam(self, team):
         # Add a team to list of teams
@@ -50,6 +63,9 @@ class RunningDinner:
     def organize(self):
         # organize the hosts, meetings and routes for the teams
         # with preferably minimal route lengths and no second encounters
+
+        # Step 0: re-generate team ID so that they reflect spatial vicinity
+        self.generateTeamIDs(shuffle=True)
         # Step 1: generate meetings & hosts for meals
         self.generateMeetings()
         # Step 2: generate routes for teams between meetings
@@ -57,15 +73,32 @@ class RunningDinner:
         # Step 3: try to optimize routes
         self.optimize()
 
-    def generate_team_ids(self):
+    def generateTeamIDs(self, shuffle=False):
         # re-generate team ID so that they reflect spatial vicinity
         # using a traveling salesman algorithm
+        # shuffle teams
+        if shuffle:
+            random.shuffle(self.teams)
+        # generate distance matrix
         N = len(self.teams)
         matrix = np.zeros((N, N))
         for i in range(N):
             for j in range(N):
                 matrix[i, j] = spatial_distance(
                     self.teams[i].coords, self.teams[j].coords)
+        # solve the traveling salesman problem using the package tspy
+        tsp = tspy.TSP()
+        tsp.read_mat(matrix)
+        solver = tspy.solvers.TwoOpt_solver(
+            initial_tour='NN', iter_num=10000)
+        save_stdout = sys.stdout
+        sys.stdout = open('/dev/null', 'w')  # no stdout for the following call
+        solution = tsp.get_approx_solution(solver)
+        sys.stdout = save_stdout
+        # set new team IDs according to solution
+        for t in range(len(self.teams)):
+            self.teams[t].id = solution[t]
+        self.teams = sorted(self.teams, key=lambda t: t.id)
 
     def generateMeetings(self):
         # generate meetings & hosts for each meal
@@ -130,6 +163,19 @@ class RunningDinner:
 
     # try to find errors and perform sane optimizations on the routes
     def optimize(self):
-        # TODO: check for meetings with len(meeting.teams) == 1
+        # check for meetings with len(meeting.teams) == 1
+        for meal in range(self.nmeals):
+            # generate a list of all meetings for this meal
+            meetings = []
+            for team in self.teams:
+                if team.route[meal] is not None and team.route[meal] not in meetings:
+                    meetings.append(team.route[meal])
+            for meeting in meetings:
+                if len(meeting.teams) < 2:
+                    print("Warning: meeting at ", meeting.host, "has only",
+                          len(meeting.teams), "members")
+                    # TODO: try to swap teams to fix this
+
         # TODO: check for optimization of routes by swapping teams
+
         pass

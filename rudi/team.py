@@ -1,4 +1,4 @@
-from geo import adress2coords, spatial_distance
+from .geo import adress2coords, spatial_distance
 
 
 class Team:
