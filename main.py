@@ -3,17 +3,18 @@ import matplotlib
 matplotlib.use("Agg")
 from rudi import RunningDinner, Team
 from numpy.random import normal
-# rudi = None
+from subprocess import Popen
 rudi = RunningDinner()
 
 
 def main():
     # Main routine of program
+    Popen("rm -rf out; mkdir -p out", shell=True).communicate()
     # create the event
     # load the teams from a file
     # rudi.loadcsv("in.csv")
     # create some teams
-    N = 70
+    N = 18
     for _ in range(N):
         t = Team()
         t.coords = (normal(), normal())

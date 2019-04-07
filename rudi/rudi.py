@@ -33,8 +33,7 @@ class RunningDinner:
         # number of teams per meeting
         self.nteams_per_meeting = 3
         self.strn = 99
-        if sys.version_info[0] < 3:
-            raise Exception("RunningDinner requires Python 3")
+        self.plotID = 0
 
     def addTeam(self, team):
         # Add a team to list of teams
@@ -157,9 +156,11 @@ class RunningDinner:
                     if len(options) == 0:
                         # still no options: make up an own meeting!
                         team.attendMeeting(Meeting(meal, team))
+                        self.plot()
                     elif len(options) == 1:
                         # single option: plug the meeting into team's route
                         team.attendMeeting(options[0])
+                        self.plot()
                     else:
                         # multiple options:
                         # if not all teams are undecided yet, skip this one
@@ -175,6 +176,7 @@ class RunningDinner:
                             distances.items(), key=lambda kv: kv[1])]
                         # pick the option with minimal walking distance
                         team.attendMeeting(options[0])
+                        self.plot()
                     # routes may have changed, reset undecided counter
                     nundecided = 0
 
@@ -198,13 +200,16 @@ class RunningDinner:
 
         pass
 
-    def plot(self):
+    def plot(self, meals=None):
         N = len(self.teams)
-        # data = np.zeros()
-        data = []
+        if meals is None:
+            meals = range(-1, self.nmeals)
         for team in self.teams:
-            data.append([team.coordsAt(meal) for meal in range(self.nmeals)])
-            xs = [team.coordsAt(meal)[0] for meal in range(self.nmeals)]
-            ys = [team.coordsAt(meal)[1] for meal in range(self.nmeals)]
-            plt.plot(xs, ys, linestyle="-", marker="o")
-        plt.savefig("out.png")
+            xs = [team.coordsAt(meal)[0] for meal in meals]
+            ys = [team.coordsAt(meal)[1] for meal in meals]
+            if any([m is not None and m.host is team for m in team.route[:1]]):
+                plt.plot([team.coords[0]], [team.coords[1]], markersize=4, marker="o")
+            plt.plot(xs, ys, linestyle="-", marker="x")
+        plt.savefig("out/routes{:05d}.png".format(self.plotID))
+        self.plotID += 1
+        plt.cla()

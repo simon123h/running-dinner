@@ -70,7 +70,8 @@ class Team:
         # returns the current position of the team for given meal
         if meal < 0:
             return self.coords
-        # elif self.route[meal] is None:
+        elif self.route[meal] is None:
+            return self.coordsAt(meal-1)
         else:
             return self.route[meal].host.coords
 
