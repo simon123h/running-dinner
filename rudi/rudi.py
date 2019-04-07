@@ -192,4 +192,8 @@ class RunningDinner:
     def plot(self):
         N = len(self.teams)
         # data = np.zeros()
-        # TODO: implement
+        data = []
+        for team in self.teams:
+            data.append([team.coordsAt(meal) for meal in range(self.nmeals)])
+            plt.plot(data[-1], linestyle="--", marker="o")
+        plt.savefig("out.png")
