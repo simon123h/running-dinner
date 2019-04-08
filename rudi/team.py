@@ -75,13 +75,16 @@ class Team:
         else:
             return self.route[meal].host.coords
 
-    def routelength(self):
+    def routelength(self, breakOnMissing=False):
         # calculate total route length
         result = 0
         startCoords = self.coords
         for meeting in self.route:
-            result += spatial_distance(startCoords, meeting.host.coords)
-            startCoords = meeting.host.coords
+            if breakOnMissing and meeting is None:
+                break
+            if meeting is not None:
+                result += spatial_distance(startCoords, meeting.host.coords)
+                startCoords = meeting.host.coords
         return result
 
     def __repr__(self):

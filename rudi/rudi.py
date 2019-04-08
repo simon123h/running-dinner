@@ -142,6 +142,10 @@ class RunningDinner:
             for team in self.teams:
                 if team.route[meal] is not None and team.route[meal] not in meetings:
                     meetings.append(team.route[meal])
+            # TODO: sort teams, so the ones furthest from center are served first
+            # sort teams, so the ones that have a long route already are served first
+            teams = sorted(
+                self.teams, key=lambda t: t.routelength(), reverse=True)
             # repeat the following algorithm until all teams have a meeting for this meal
             ndone = 0
             nundecided = 0
@@ -149,7 +153,7 @@ class RunningDinner:
                 # reset counter
                 ndone = 0
                 # loop over teams, check out each team's options and handle accordingly
-                for team in self.teams:
+                for team in teams:
                     nundecided += 1
                     # if team already has a meet for this meal: count as assigned and skip
                     if team.route[meal] is not None:
