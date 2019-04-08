@@ -1,10 +1,18 @@
+from geopy.exc import GeocoderTimedOut
+from geopy.geocoders import Nominatim
 from math import sqrt, pow
+
+# Initialize geocoder
+geolocator = Nominatim(user_agent="nominatim_testing")
 
 
 def adress2coords(adress):
     """ Geocodes the adress of a location (string) to a coordinate pair """
-    # TODO: implement
-    return (0, 0)
+    try:
+        location = geolocator.geocode(adress)
+        return (location.latitude, location.longitude)
+    except GeocoderTimedOut:
+        return adress2coords(adress)
 
 
 def spatial_distance(coords1, coords2):
