@@ -1,9 +1,14 @@
 from __future__ import print_function
 from subprocess import Popen
 from numpy.random import normal
+try:
+    import matplotlib
+    matplotlib.use("Agg")
+except ImportError:
+    raise ImportError(
+        'Module \'matplotlib\' required.\nPlease install it via \'pip3 install --user matplotlib\'')
+
 from rudi import RunningDinner, Team
-import matplotlib
-matplotlib.use("Agg")
 rudi = RunningDinner()
 
 

@@ -1,6 +1,10 @@
-from geopy.exc import GeocoderTimedOut
-from geopy.geocoders import Nominatim
 from math import sqrt, pow
+try:
+    from geopy.exc import GeocoderTimedOut
+    from geopy.geocoders import Nominatim
+except ImportError:
+    raise ImportError(
+        'Module \'geopy\' required.\nPlease install it via \'pip3 install --user geopy\'')
 
 # Initialize geocoder
 geolocator = Nominatim(user_agent="nominatim_testing")

@@ -72,8 +72,7 @@ class RunningDinner:
         # root mean square of routes to be walked
         result = 0
         for team in self.teams:
-            trl = team.routelength()
-            result += trl*trl
+            result += math.pow(team.routelength(), 2)
         return math.sqrt(result / len(self.teams))
 
     def organize(self):
