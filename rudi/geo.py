@@ -14,6 +14,9 @@ def adress2coords(adress):
     """ Geocodes the adress of a location (string) to a coordinate pair """
     try:
         location = geolocator.geocode(adress)
+        if location is None:
+            print("Could not geocode adress:", adress)
+            return None
         return (location.latitude, location.longitude)
     except GeocoderTimedOut:
         return adress2coords(adress)

@@ -1,6 +1,19 @@
 from .geo import adress2coords, spatial_distance
 
 
+class Person:
+    """ Object representation of a single person """
+
+    def __init__(self, name):
+        self.name = name
+        self.email = "<keine Email>"
+        self.team = None
+        self.isHost = False
+
+    def __repr__(self):
+        return self.name
+
+
 class Team:
     """ Object representation of a Team """
     # total number of teams
@@ -23,10 +36,15 @@ class Team:
         # list of teams that were already met
         self.teamsMet = []
 
+    def addMember(self, member):
+        self.members.append(member)
+
     def setAdress(self, adress):
         # set the adress and geocode coordinates
         self.adress = adress
         self.coords = adress2coords(adress)
+        # return True if geocoding was successful, else False
+        return self.coords is not None
 
     def setRudi(self, rudi):
         # set the RuDi event in which the team participates

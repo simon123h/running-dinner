@@ -41,11 +41,6 @@ class RunningDinner:
         self.teams.append(team)
         team.setRudi(self)
 
-    def loadcsv(self, csvfile):
-        # load the event data from a csv file
-        # TODO: implement
-        pass
-
     def savecsv(self, csvfile="out.csv"):
         # save the event data to a csv file
         self.teams = sorted(self.teams, key=lambda t: t.id)
