@@ -1,4 +1,4 @@
-from math import sqrt, pow
+import math
 try:
     from geopy.exc import GeocoderTimedOut
     from geopy.geocoders import Nominatim
@@ -24,5 +24,13 @@ def adress2coords(adress):
 
 def spatial_distance(coords1, coords2):
     """ Calculates the spatial distance between too coordinate pairs """
-    # TODO: is this a sane implementation?
-    return sqrt(pow(coords1[0]-coords2[0], 2) + pow(coords1[1]-coords2[1], 2))
+    return math.sqrt(math.pow(coords1[0]-coords2[0], 2) + math.pow(coords1[1]-coords2[1], 2))
+    # TODO: use the following implementation for actual coordinates
+    latitude = math.radians(coords1[0] - coords2[0])
+    longitude = math.radians(coords1[1] - coords2[1])
+    earthRadius = 6371  # kilometers
+    a = math.sin(latitude/2) * math.sin(latitude/2) + math.cos(math.radians(coords1[0])) * math.cos(
+        math.radians(coords2[0])) * math.sin(longitude/2) * math.sin(longitude/2)
+    c = 2 * math.atan2(math.sqrt(a), math.sqrt(1-a))
+    dist = earthRadius * c
+    return dist
